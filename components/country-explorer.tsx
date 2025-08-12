@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/search-bar"
 import { Pagination } from "@/components/pagination"
 import { ErrorMessage } from "@/components/error-message"
 import { useCountries } from "@/hooks/use-countries"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 export default function CountryExplorer() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -15,6 +16,7 @@ export default function CountryExplorer() {
   const itemsPerPage = 10
 
   const { countries, isLoading, error } = useCountries()
+  const { trackCountry, trackSearch, trackAppError } = useAnalytics()
 
   // Check URL for selected country on mount
   useEffect(() => {
@@ -24,6 +26,13 @@ export default function CountryExplorer() {
       setSelectedCountry(countryParam)
     }
   }, [])
+
+  // Track errors
+  useEffect(() => {
+    if (error) {
+      trackAppError(error, "country-explorer")
+    }
+  }, [error, trackAppError])
 
   // Filter countries based on search query
   const filteredCountries = countries.filter((country) =>
@@ -38,6 +47,15 @@ export default function CountryExplorer() {
   const handleSearch = (query: string) => {
     setSearchQuery(query)
     setCurrentPage(1) // Reset to first page on new search
+
+    // Track search analytics
+    if (query.trim()) {
+      const resultsCount = countries.filter((country) =>
+        country.name.common.toLowerCase().includes(query.toLowerCase()),
+      ).length
+      trackSearch(query, resultsCount)
+    }
+
     if (!query) {
       setSelectedCountry(null) // Clear selected country only if search is empty
       // Clear URL parameters
@@ -54,6 +72,13 @@ export default function CountryExplorer() {
   // Handle country selection
   const handleCountrySelect = (countryCode: string) => {
     setSelectedCountry(countryCode)
+
+    // Find country details for analytics
+    const country = countries.find((c) => c.cca3 === countryCode)
+    if (country) {
+      trackCountry(country.name.common, countryCode)
+    }
+
     // Update URL without page reload
     window.history.pushState({ countryCode }, "", `?country=${countryCode}`)
   }

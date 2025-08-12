@@ -1,12 +1,19 @@
 "use client"
 import { Moon, Sun, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useAnalytics } from "@/hooks/use-analytics"
 
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme()
+  const { trackTheme } = useAnalytics()
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme)
+    trackTheme(newTheme)
+  }
 
   return (
     <DropdownMenu>
@@ -18,17 +25,17 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")} className="flex items-center gap-2">
+        <DropdownMenuItem onClick={() => handleThemeChange("light")} className="flex items-center gap-2">
           <Sun className="h-4 w-4" />
           Light
           {theme === "light" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")} className="flex items-center gap-2">
+        <DropdownMenuItem onClick={() => handleThemeChange("dark")} className="flex items-center gap-2">
           <Moon className="h-4 w-4" />
           Dark
           {theme === "dark" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")} className="flex items-center gap-2">
+        <DropdownMenuItem onClick={() => handleThemeChange("system")} className="flex items-center gap-2">
           <Monitor className="h-4 w-4" />
           System
           {theme === "system" && <span className="ml-auto">✓</span>}
