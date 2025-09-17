@@ -19,10 +19,10 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="glass rounded-2xl p-4 animate-pulse">
             <div className="flex items-center gap-4">
-              <Skeleton className="h-12 w-16 rounded-lg bg-white/20" />
+              <Skeleton className="h-12 w-16 rounded-lg bg-gray-200 dark:bg-white/20" />
               <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-3/4 bg-white/20" />
-                <Skeleton className="h-4 w-1/2 bg-white/20" />
+                <Skeleton className="h-5 w-3/4 bg-gray-200 dark:bg-white/20" />
+                <Skeleton className="h-4 w-1/2 bg-gray-200 dark:bg-white/20" />
               </div>
             </div>
           </div>
@@ -39,15 +39,15 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
           onClick={() => onSelectCountry(country.cca3)}
           className={`w-full text-left group transition-all duration-300 hover-lift animate-fade-in ${
             selectedCountry === country.cca3
-              ? "glass rounded-2xl border-2 border-white/30 shadow-beautiful-lg scale-105"
-              : "glass rounded-2xl border border-white/10 hover:border-white/20"
+              ? "glass rounded-2xl border-2 border-blue-200 dark:border-white/30 shadow-beautiful-lg scale-105"
+              : "glass rounded-2xl border border-gray-200/50 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
           }`}
           style={{ animationDelay: `${index * 50}ms` }}
         >
           <div className="p-4">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-16 h-12 overflow-hidden rounded-xl shadow-beautiful flex-shrink-0 bg-white/10 group-hover:shadow-beautiful-lg transition-all duration-300">
+                <div className="w-16 h-12 overflow-hidden rounded-xl shadow-beautiful flex-shrink-0 bg-gray-100 dark:bg-white/10 group-hover:shadow-beautiful-lg transition-all duration-300">
                   <img
                     src={country.flags?.svg ?? country.flags?.png ?? "/placeholder.svg"}
                     alt={`Flag of ${country.name.common}`}
@@ -65,7 +65,7 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-white group-hover:text-white/90 truncate text-lg">
+                  <h3 className="font-bold text-gray-800 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white/90 truncate text-lg">
                     {country.name.common}
                   </h3>
                   {country.population > 100000000 && (
@@ -74,7 +74,7 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-white/70 group-hover:text-white/90 text-sm">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-white/70 group-hover:text-gray-700 dark:group-hover:text-white/90 text-sm">
                     <MapPin className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{country.region}</span>
                     {country.subregion && (
@@ -85,7 +85,7 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-white/60 group-hover:text-white/80 text-sm">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-white/60 group-hover:text-gray-600 dark:group-hover:text-white/80 text-sm">
                     <Users className="w-3 h-3 flex-shrink-0" />
                     <span>{country.population.toLocaleString()} people</span>
                   </div>
@@ -97,12 +97,12 @@ export function CountryList({ countries, isLoading, selectedCountry, onSelectCou
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     selectedCountry === country.cca3
                       ? "bg-gradient-accent animate-pulse"
-                      : "bg-white/20 group-hover:bg-white/40"
+                      : "bg-gray-300 dark:bg-white/20 group-hover:bg-gray-400 dark:group-hover:bg-white/40"
                   }`}
                 ></div>
 
                 {country.capital && country.capital[0] && (
-                  <div className="text-xs text-white/50 group-hover:text-white/70 text-right">
+                  <div className="text-xs text-gray-500 dark:text-white/50 group-hover:text-gray-600 dark:group-hover:text-white/70 text-right">
                     <div className="font-medium">{country.capital[0]}</div>
                     <div>Capital</div>
                   </div>

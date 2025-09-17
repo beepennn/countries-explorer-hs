@@ -11,14 +11,14 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full glass border-b border-white/20 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full glass border-b border-gray-200/50 dark:border-white/20 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleHomeClick}
-            className="flex items-center gap-2 hover:bg-white/10 text-white hover:text-white transition-all duration-300 hover:scale-105"
+            className="flex items-center gap-2 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-800 dark:text-white hover:text-gray-900 dark:hover:text-white transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
               <Home className="h-5 w-5" />
@@ -29,22 +29,22 @@ export function Header() {
 
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Globe className="h-8 w-8 text-white animate-float" />
+              <Globe className="h-8 w-8 text-gray-800 dark:text-white animate-float" />
               <div className="absolute inset-0 bg-gradient-accent rounded-full opacity-20 animate-pulse-slow"></div>
             </div>
             <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                 Countries Explorer
-                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+                <Sparkles className="h-5 w-5 text-yellow-500 dark:text-yellow-300 animate-pulse" />
               </h1>
-              <p className="text-xs text-white/70 hidden sm:block">Discover the world's beauty</p>
+              <p className="text-xs text-gray-600 dark:text-white/70 hidden sm:block">Discover the world's beauty</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 text-white/80 text-sm">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <div className="hidden md:flex items-center gap-2 text-gray-600 dark:text-white/80 text-sm">
+            <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></div>
             <span>Live Data</span>
           </div>
           <ThemeToggle />
@@ -52,7 +52,7 @@ export function Header() {
       </div>
 
       {/* Animated border */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300/50 dark:via-white/30 to-transparent"></div>
     </header>
   )
 }

@@ -94,11 +94,15 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
   if (!isOpen) {
     return (
       <div className="flex items-center gap-2 mb-4">
-        <Button variant="outline" onClick={onToggle} className="flex items-center gap-2 bg-transparent">
+        <Button
+          variant="outline"
+          onClick={onToggle}
+          className="flex items-center gap-2 glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 bg-transparent"
+        >
           <Filter className="w-4 h-4" />
           Filters & Sort
           {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-1">
+            <Badge variant="secondary" className="ml-1 bg-gradient-accent text-white">
               {activeFiltersCount}
             </Badge>
           )}
@@ -106,7 +110,7 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
 
         {/* Quick Sort Options */}
         <Select value={filters.sortBy} onValueChange={(value) => updateFilter("sortBy", value)}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -121,6 +125,7 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
           variant="ghost"
           size="sm"
           onClick={() => updateFilter("sortOrder", filters.sortOrder === "asc" ? "desc" : "asc")}
+          className="text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10"
         >
           {filters.sortOrder === "asc" ? "↑" : "↓"}
         </Button>
@@ -129,19 +134,33 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="glass rounded-2xl border border-gray-200/50 dark:border-white/20 p-6 mb-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
+        <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-white">
           <Filter className="w-5 h-5" />
           Advanced Filters & Sorting
-          {activeFiltersCount > 0 && <Badge variant="secondary">{activeFiltersCount} active</Badge>}
+          {activeFiltersCount > 0 && (
+            <Badge variant="secondary" className="bg-gradient-secondary text-white">
+              {activeFiltersCount} active
+            </Badge>
+          )}
         </h3>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={resetFilters}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetFilters}
+            className="text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10"
+          >
             <RotateCcw className="w-4 h-4 mr-1" />
             Reset
           </Button>
-          <Button variant="ghost" size="sm" onClick={onToggle}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggle}
+            className="text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10"
+          >
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -150,12 +169,14 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Geographic Filters */}
         <div className="space-y-4">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">Geographic</h4>
+          <h4 className="font-medium text-sm text-gray-600 dark:text-gray-300">Geographic</h4>
 
           <div>
-            <Label htmlFor="region">Region</Label>
+            <Label htmlFor="region" className="text-gray-700 dark:text-white">
+              Region
+            </Label>
             <Select value={filters.region} onValueChange={(value) => updateFilter("region", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue placeholder="All regions" />
               </SelectTrigger>
               <SelectContent>
@@ -170,9 +191,11 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
           </div>
 
           <div>
-            <Label htmlFor="subregion">Subregion</Label>
+            <Label htmlFor="subregion" className="text-gray-700 dark:text-white">
+              Subregion
+            </Label>
             <Select value={filters.subregion} onValueChange={(value) => updateFilter("subregion", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue placeholder="All subregions" />
               </SelectTrigger>
               <SelectContent>
@@ -189,10 +212,10 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
 
         {/* Population & Area Filters */}
         <div className="space-y-4">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">Size</h4>
+          <h4 className="font-medium text-sm text-gray-600 dark:text-gray-300">Size</h4>
 
           <div>
-            <Label>
+            <Label className="text-gray-700 dark:text-white">
               Population: {filters.populationMin.toLocaleString()} - {filters.populationMax.toLocaleString()}
             </Label>
             <div className="mt-2">
@@ -211,7 +234,7 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
           </div>
 
           <div>
-            <Label>
+            <Label className="text-gray-700 dark:text-white">
               Area (km²): {filters.areaMin.toLocaleString()} - {filters.areaMax.toLocaleString()}
             </Label>
             <div className="mt-2">
@@ -232,12 +255,14 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
 
         {/* Cultural & Economic Filters */}
         <div className="space-y-4">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">Cultural & Economic</h4>
+          <h4 className="font-medium text-sm text-gray-600 dark:text-gray-300">Cultural & Economic</h4>
 
           <div>
-            <Label htmlFor="language">Language</Label>
+            <Label htmlFor="language" className="text-gray-700 dark:text-white">
+              Language
+            </Label>
             <Select value={filters.language} onValueChange={(value) => updateFilter("language", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue placeholder="All languages" />
               </SelectTrigger>
               <SelectContent>
@@ -252,9 +277,11 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
           </div>
 
           <div>
-            <Label htmlFor="currency">Currency</Label>
+            <Label htmlFor="currency" className="text-gray-700 dark:text-white">
+              Currency
+            </Label>
             <Select value={filters.currency} onValueChange={(value) => updateFilter("currency", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue placeholder="All currencies" />
               </SelectTrigger>
               <SelectContent>
@@ -272,12 +299,14 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
 
       {/* Sorting Options */}
       <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-4">Sorting</h4>
+        <h4 className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-4">Sorting</h4>
         <div className="flex items-center gap-4">
           <div>
-            <Label htmlFor="sortBy">Sort by</Label>
+            <Label htmlFor="sortBy" className="text-gray-700 dark:text-white">
+              Sort by
+            </Label>
             <Select value={filters.sortBy} onValueChange={(value) => updateFilter("sortBy", value)}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-40 glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -291,12 +320,14 @@ export function AdvancedFilters({ countries, onFiltersChange, isOpen, onToggle }
           </div>
 
           <div>
-            <Label htmlFor="sortOrder">Order</Label>
+            <Label htmlFor="sortOrder" className="text-gray-700 dark:text-white">
+              Order
+            </Label>
             <Select
               value={filters.sortOrder}
               onValueChange={(value: "asc" | "desc") => updateFilter("sortOrder", value)}
             >
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 glass border-gray-200 dark:border-white/20 text-gray-700 dark:text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

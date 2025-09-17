@@ -106,16 +106,16 @@ export function CountryDetail({ countryCode, countries }: CountryDetailProps) {
       <div className="glass rounded-3xl p-8 animate-pulse">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-1/3">
-            <Skeleton className="h-48 w-full rounded-2xl bg-white/20" />
+            <Skeleton className="h-48 w-full rounded-2xl bg-gray-200 dark:bg-white/20" />
           </div>
           <div className="lg:w-2/3 space-y-6">
             <div className="space-y-3">
-              <Skeleton className="h-8 w-3/4 bg-white/20" />
-              <Skeleton className="h-6 w-1/2 bg-white/20" />
+              <Skeleton className="h-8 w-3/4 bg-gray-200 dark:bg-white/20" />
+              <Skeleton className="h-6 w-1/2 bg-gray-200 dark:bg-white/20" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-20 rounded-xl bg-white/20" />
+                <Skeleton key={i} className="h-20 rounded-xl bg-gray-200 dark:bg-white/20" />
               ))}
             </div>
           </div>
@@ -216,82 +216,88 @@ export function CountryDetail({ countryCode, countries }: CountryDetailProps) {
       <div className="p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Population */}
-          <div className="glass rounded-2xl p-6 hover-lift group">
+          <div className="glass rounded-2xl p-6 hover-lift group border border-gray-200/50 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Users className="w-6 h-6 text-white" />
               </div>
               <Badge className="bg-gradient-secondary text-white">{getPopulationRank(country.population)}</Badge>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{formattedPopulation}</div>
-            <div className="text-white/70 text-sm">Population</div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-white mb-1">{formattedPopulation}</div>
+            <div className="text-gray-600 dark:text-white/70 text-sm">Population</div>
           </div>
 
           {/* Area */}
-          <div className="glass rounded-2xl p-6 hover-lift group">
+          <div className="glass rounded-2xl p-6 hover-lift group border border-gray-200/50 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
               <Badge className="bg-gradient-accent text-white">{getAreaRank(country.area)}</Badge>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{formattedArea}</div>
-            <div className="text-white/70 text-sm">Area (km²)</div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-white mb-1">{formattedArea}</div>
+            <div className="text-gray-600 dark:text-white/70 text-sm">Area (km²)</div>
           </div>
 
           {/* Capital */}
-          <div className="glass rounded-2xl p-6 hover-lift group">
+          <div className="glass rounded-2xl p-6 hover-lift group border border-gray-200/50 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-warning rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Crown className="w-6 h-6 text-white" />
               </div>
-              <Info className="w-4 h-4 text-white/50" />
+              <Info className="w-4 h-4 text-gray-500 dark:text-white/50" />
             </div>
-            <div className="text-xl font-bold text-white mb-1 truncate">{capitals}</div>
-            <div className="text-white/70 text-sm">Capital City</div>
+            <div className="text-xl font-bold text-gray-800 dark:text-white mb-1 truncate">{capitals}</div>
+            <div className="text-gray-600 dark:text-white/70 text-sm">Capital City</div>
           </div>
         </div>
 
         {/* Detailed Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Languages */}
-          <div className="glass rounded-2xl p-6">
+          <div className="glass rounded-2xl p-6 border border-gray-200/50 dark:border-white/10">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-gradient-accent rounded-lg flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white">Languages</h3>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Languages</h3>
             </div>
             <div className="space-y-2">
               {languages.length > 0 ? (
                 languages.map((language, index) => (
-                  <Badge key={index} className="bg-white/10 text-white border-white/20 mr-2 mb-2">
+                  <Badge
+                    key={index}
+                    className="bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white border-gray-200 dark:border-white/20 mr-2 mb-2"
+                  >
                     {language}
                   </Badge>
                 ))
               ) : (
-                <span className="text-white/70">Not available</span>
+                <span className="text-gray-600 dark:text-white/70">Not available</span>
               )}
             </div>
           </div>
 
           {/* Currencies */}
-          <div className="glass rounded-2xl p-6">
+          <div className="glass rounded-2xl p-6 border border-gray-200/50 dark:border-white/10">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-gradient-secondary rounded-lg flex items-center justify-center">
                 <Coins className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white">Currencies</h3>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Currencies</h3>
             </div>
             <div className="space-y-2">
               {currencies.length > 0 ? (
                 currencies.map((currency, index) => (
-                  <div key={index} className="text-white/90 bg-white/5 rounded-lg p-2">
+                  <div
+                    key={index}
+                    className="text-gray-700 dark:text-white/90 bg-gray-50 dark:bg-white/5 rounded-lg p-2"
+                  >
                     {currency}
                   </div>
                 ))
               ) : (
-                <span className="text-white/70">Not available</span>
+                <span className="text-gray-600 dark:text-white/70">Not available</span>
               )}
             </div>
           </div>

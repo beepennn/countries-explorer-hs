@@ -182,37 +182,39 @@ export default function CountryExplorer() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
       <div className="container mx-auto px-4 py-8 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-12 animate-fade-in">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="relative">
-                <Globe className="h-12 w-12 text-white animate-float" />
-                <div className="absolute inset-0 bg-gradient-accent rounded-full opacity-30 animate-pulse-slow"></div>
+                <Globe className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-float" />
+                <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/20 rounded-full opacity-30 animate-pulse-slow"></div>
               </div>
-              <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
+              <Sparkles className="h-8 w-8 text-yellow-500 dark:text-yellow-400 animate-pulse" />
             </div>
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4 gradient-text">Explore the World</h1>
-            <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+            <h1 className="text-4xl lg:text-6xl font-bold text-gray-800 dark:text-white mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              Explore the World
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
               Discover amazing facts about {countries.length}+ countries around the globe. Search, compare, and learn
               about different cultures, languages, and more.
             </p>
 
             {/* Quick Stats */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
-                <Globe className="h-5 w-5 text-white/70" />
-                <span className="text-white font-semibold">{countries.length}+ Countries</span>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-3 flex items-center gap-2 border border-gray-200/50 dark:border-gray-700/50">
+                <Globe className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <span className="text-gray-800 dark:text-white font-semibold">{countries.length}+ Countries</span>
               </div>
-              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
-                <Users className="h-5 w-5 text-white/70" />
-                <span className="text-white font-semibold">8B+ People</span>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-3 flex items-center gap-2 border border-gray-200/50 dark:border-gray-700/50">
+                <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <span className="text-gray-800 dark:text-white font-semibold">8B+ People</span>
               </div>
-              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-white/70" />
-                <span className="text-white font-semibold">Live Data</span>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-3 flex items-center gap-2 border border-gray-200/50 dark:border-gray-700/50">
+                <TrendingUp className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <span className="text-gray-800 dark:text-white font-semibold">Live Data</span>
               </div>
             </div>
           </div>
@@ -242,17 +244,18 @@ export default function CountryExplorer() {
           {/* Results Summary */}
           {!isLoading && (
             <div className="mb-8 text-center">
-              <div className="glass rounded-2xl px-6 py-4 inline-flex items-center gap-3">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-4 inline-flex items-center gap-3 border border-gray-200/50 dark:border-gray-700/50">
                 {searchQuery && (
-                  <span className="text-white/90">
-                    Search results for <span className="font-semibold text-white">"{searchQuery}"</span>:
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Search results for{" "}
+                    <span className="font-semibold text-gray-800 dark:text-white">"{searchQuery}"</span>:
                   </span>
                 )}
-                <span className="font-bold text-white text-lg">
+                <span className="font-bold text-gray-800 dark:text-white text-lg">
                   {filteredAndSortedCountries.length} countries found
                 </span>
                 {filteredAndSortedCountries.length !== countries.length && (
-                  <span className="text-white/70">(filtered from {countries.length} total)</span>
+                  <span className="text-gray-500 dark:text-gray-400">(filtered from {countries.length} total)</span>
                 )}
               </div>
             </div>
@@ -282,29 +285,31 @@ export default function CountryExplorer() {
               {selectedCountry ? (
                 <CountryDetail countryCode={selectedCountry} countries={countries} />
               ) : (
-                <div className="glass rounded-3xl p-12 text-center animate-fade-in">
-                  <div className="text-white/70">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-12 text-center animate-fade-in border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="text-gray-600 dark:text-gray-300">
                     <div className="relative w-24 h-24 mx-auto mb-6">
-                      <div className="absolute inset-0 bg-gradient-primary rounded-full opacity-20 animate-pulse-slow"></div>
-                      <div className="w-24 h-24 bg-gradient-accent rounded-full flex items-center justify-center animate-float">
+                      <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/20 rounded-full opacity-20 animate-pulse-slow"></div>
+                      <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 rounded-full flex items-center justify-center animate-float">
                         <Globe className="w-12 h-12 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-4">Select a Country to Explore</h3>
-                    <p className="text-white/80 mb-6 max-w-md mx-auto">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                      Select a Country to Explore
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">
                       Choose any country from the list to discover fascinating details about its culture, geography,
                       population, and more.
                     </p>
                     <div className="flex flex-wrap justify-center gap-3">
-                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                      <div className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
                         <Sparkles className="w-4 h-4 inline mr-2" />
                         Rich Details
                       </div>
-                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                      <div className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
                         <TrendingUp className="w-4 h-4 inline mr-2" />
                         Live Data
                       </div>
-                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                      <div className="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
                         <Users className="w-4 h-4 inline mr-2" />
                         Population Stats
                       </div>

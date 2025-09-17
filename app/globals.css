@@ -27,17 +27,24 @@
     --ring: 262.1 83.3% 57.8%;
     --radius: 0.75rem;
 
-    /* Custom gradient variables */
+    /* Light mode gradients */
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
     --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 
-    /* Glass morphism */
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    /* Light mode glass morphism */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+    /* Light mode text colors */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --text-on-glass: #1f2937;
+    --text-on-gradient: #ffffff;
   }
 
   .dark {
@@ -61,10 +68,24 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 262.1 83.3% 57.8%;
 
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+
     /* Dark mode glass morphism */
-    --glass-bg: rgba(0, 0, 0, 0.25);
+    --glass-bg: rgba(0, 0, 0, 0.4);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+    /* Dark mode text colors */
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-on-glass: #ffffff;
+    --text-on-gradient: #ffffff;
   }
 }
 
@@ -78,7 +99,7 @@
     font-family: "Inter", system-ui, -apple-system, sans-serif;
     font-feature-settings: "cv11", "ss01";
     font-variation-settings: "opsz" 32;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
     min-height: 100vh;
   }
 
@@ -113,6 +134,14 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .text-on-glass {
+    color: var(--text-on-glass);
+  }
+
+  .text-on-gradient {
+    color: var(--text-on-gradient);
   }
 
   .animate-float {
