@@ -1,24 +1,56 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { useCountries } from "@/hooks/use-countries"
 import { CountryList } from "@/components/country-list"
 import { CountryDetail } from "@/components/country-detail"
-import { SearchBar } from "@/components/search-bar"
+import { EnhancedSearch } from "@/components/enhanced-search"
+import { AdvancedFilters } from "@/components/advanced-filters"
+import { CountryComparison } from "@/components/country-comparison"
+import { FavoritesSystem } from "@/components/favorites-system"
 import { Pagination } from "@/components/pagination"
 import { ErrorMessage } from "@/components/error-message"
-import { useCountries } from "@/hooks/use-countries"
-import { useAnalytics } from "@/hooks/use-analytics"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { CookieConsent } from "@/components/cookie-consent"
+import { AnalyticsProvider } from "@/components/analytics-provider"
+
+interface FilterOptions {
+  region: string
+  subregion: string
+  populationMin: number
+  populationMax: number
+  areaMin: number
+  areaMax: number
+  language: string
+  currency: string
+  sortBy: string
+  sortOrder: "asc" | "desc"
+}
+
+const ITEMS_PER_PAGE = 20
 
 export default function CountryExplorer() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
-  const itemsPerPage = 10
-
   const { countries, isLoading, error } = useCountries()
-  const { trackCountry, trackSearch, trackAppError } = useAnalytics()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showFilters, setShowFilters] = useState(false)
+  const [showComparison, setShowComparison] = useState(false)
+  const [filters, setFilters] = useState<FilterOptions>({
+    region: "",
+    subregion: "",
+    populationMin: 0,
+    populationMax: 1500000000,
+    areaMin: 0,
+    areaMax: 20000000,
+    language: "",
+    currency: "",
+    sortBy: "name",
+    sortOrder: "asc",
+  })
 
-  // Check URL for selected country on mount
+  // Load selected country from URL on mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const countryParam = urlParams.get("country")
@@ -27,106 +59,230 @@ export default function CountryExplorer() {
     }
   }, [])
 
-  // Track errors
+  // Update URL when country is selected
   useEffect(() => {
-    if (error) {
-      trackAppError(error, "country-explorer")
+    const url = new URL(window.location.href)
+    if (selectedCountry) {
+      url.searchParams.set("country", selectedCountry)
+    } else {
+      url.searchParams.delete("country")
     }
-  }, [error, trackAppError])
+    window.history.replaceState({}, "", url.toString())
+  }, [selectedCountry])
 
-  // Filter countries based on search query
-  const filteredCountries = countries.filter((country) =>
-    country.name.common.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  // Filter and sort countries
+  const filteredAndSortedCountries = useMemo(() => {
+    const filtered = countries.filter((country) => {
+      // Search query filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        const matchesName = country.name.common.toLowerCase().includes(query)
+        const matchesCapital = country.capital?.some((cap) => cap.toLowerCase().includes(query))
+        const matchesRegion = country.region.toLowerCase().includes(query)
+        const matchesLanguage =
+          country.languages && Object.values(country.languages).some((lang) => lang.toLowerCase().includes(query))
+        const matchesCurrency =
+          country.currencies &&
+          Object.values(country.currencies).some((curr) => curr.name.toLowerCase().includes(query))
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredCountries.length / itemsPerPage)
-  const paginatedCountries = filteredCountries.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+        if (!matchesName && !matchesCapital && !matchesRegion && !matchesLanguage && !matchesCurrency) {
+          return false
+        }
+      }
 
-  // Handle search
+      // Advanced filters
+      if (filters.region && country.region !== filters.region) return false
+      if (filters.subregion && country.subregion !== filters.subregion) return false
+      if (country.population < filters.populationMin || country.population > filters.populationMax) return false
+      if (country.area < filters.areaMin || country.area > filters.areaMax) return false
+
+      if (filters.language && country.languages) {
+        const hasLanguage = Object.values(country.languages).some((lang) =>
+          lang.toLowerCase().includes(filters.language.toLowerCase()),
+        )
+        if (!hasLanguage) return false
+      }
+
+      if (filters.currency && country.currencies) {
+        const hasCurrency = Object.values(country.currencies).some((curr) =>
+          curr.name.toLowerCase().includes(filters.currency.toLowerCase()),
+        )
+        if (!hasCurrency) return false
+      }
+
+      return true
+    })
+
+    // Sort countries
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any
+
+      switch (filters.sortBy) {
+        case "population":
+          aValue = a.population
+          bValue = b.population
+          break
+        case "area":
+          aValue = a.area
+          bValue = b.area
+          break
+        case "region":
+          aValue = a.region
+          bValue = b.region
+          break
+        case "capital":
+          aValue = a.capital?.[0] || ""
+          bValue = b.capital?.[0] || ""
+          break
+        default:
+          aValue = a.name.common
+          bValue = b.name.common
+      }
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return filters.sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+      } else {
+        return filters.sortOrder === "asc" ? aValue - bValue : bValue - aValue
+      }
+    })
+
+    return filtered
+  }, [countries, searchQuery, filters])
+
+  // Paginated countries
+  const paginatedCountries = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredAndSortedCountries.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredAndSortedCountries, currentPage])
+
+  const totalPages = Math.ceil(filteredAndSortedCountries.length / ITEMS_PER_PAGE)
+
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    setCurrentPage(1) // Reset to first page on new search
-
-    // Track search analytics
-    if (query.trim()) {
-      const resultsCount = countries.filter((country) =>
-        country.name.common.toLowerCase().includes(query.toLowerCase()),
-      ).length
-      trackSearch(query, resultsCount)
-    }
-
-    if (!query) {
-      setSelectedCountry(null) // Clear selected country only if search is empty
-      // Clear URL parameters
-      window.history.pushState({}, "", window.location.pathname)
-    }
+    setCurrentPage(1)
   }
 
-  // Handle page change
+  const handleSelectCountry = (countryCode: string) => {
+    setSelectedCountry(countryCode)
+  }
+
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters)
+    setCurrentPage(1)
+  }
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // Handle country selection
-  const handleCountrySelect = (countryCode: string) => {
-    setSelectedCountry(countryCode)
-
-    // Find country details for analytics
-    const country = countries.find((c) => c.cca3 === countryCode)
-    if (country) {
-      trackCountry(country.name.common, countryCode)
-    }
-
-    // Update URL without page reload
-    window.history.pushState({ countryCode }, "", `?country=${countryCode}`)
-  }
-
   if (error) {
-    return <ErrorMessage message="Failed to load countries. Please try again later." />
+    return (
+      <AnalyticsProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <Header />
+          <main className="container mx-auto px-4 py-8">
+            <ErrorMessage message={error} />
+          </main>
+          <Footer />
+          <CookieConsent />
+        </div>
+      </AnalyticsProvider>
+    )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <SearchBar onSearch={handleSearch} onSelectCountry={handleCountrySelect} countries={countries} />
+    <AnalyticsProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        <Header />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-        <div className="lg:col-span-1">
-          <CountryList
-            countries={paginatedCountries}
-            isLoading={isLoading}
-            selectedCountry={selectedCountry}
-            onSelectCountry={handleCountrySelect}
-          />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Search and Controls */}
+            <div className="mb-8 space-y-4">
+              <EnhancedSearch onSearch={handleSearch} onSelectCountry={handleSelectCountry} countries={countries} />
 
-          {!isLoading && filteredCountries.length > 0 && (
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-          )}
+              <div className="flex flex-wrap items-center gap-4">
+                <AdvancedFilters
+                  countries={countries}
+                  onFiltersChange={handleFiltersChange}
+                  isOpen={showFilters}
+                  onToggle={() => setShowFilters(!showFilters)}
+                />
 
-          {!isLoading && filteredCountries.length === 0 && searchQuery && (
-            <p className="text-center mt-8 text-gray-600 dark:text-gray-400">
-              No countries found starting with "{searchQuery}"
-            </p>
-          )}
-        </div>
+                <CountryComparison
+                  countries={countries}
+                  isOpen={showComparison}
+                  onToggle={() => setShowComparison(!showComparison)}
+                />
+              </div>
 
-        <div className="lg:col-span-2">
-          {selectedCountry && <CountryDetail countryCode={selectedCountry} countries={countries} />}
+              <FavoritesSystem countries={countries} onSelectCountry={handleSelectCountry} />
+            </div>
 
-          {!selectedCountry && !isLoading && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full flex items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Welcome to Countries Explorer</h2>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Select a country from the list or search by typing the first letter of a country name to view detailed
-                  information including capital, population, languages, and more.
-                </p>
+            {/* Results Summary */}
+            {!isLoading && (
+              <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+                {searchQuery && <span>Search results for "{searchQuery}": </span>}
+                <span className="font-medium">{filteredAndSortedCountries.length} countries found</span>
+                {filteredAndSortedCountries.length !== countries.length && (
+                  <span> (filtered from {countries.length} total)</span>
+                )}
+              </div>
+            )}
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Countries List */}
+              <div className="lg:col-span-1">
+                <CountryList
+                  countries={paginatedCountries}
+                  isLoading={isLoading}
+                  selectedCountry={selectedCountry}
+                  onSelectCountry={handleSelectCountry}
+                />
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-6">
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                  </div>
+                )}
+              </div>
+
+              {/* Country Details */}
+              <div className="lg:col-span-2">
+                {selectedCountry ? (
+                  <CountryDetail countryCode={selectedCountry} countries={countries} />
+                ) : (
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">Select a Country</h3>
+                      <p className="text-sm">
+                        Choose a country from the list to view detailed information, or use the search to find a
+                        specific country.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        </main>
+
+        <Footer />
+        <CookieConsent />
       </div>
-    </div>
+    </AnalyticsProvider>
   )
 }
