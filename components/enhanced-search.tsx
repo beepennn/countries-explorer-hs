@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
-import { Search, Clock, Mic, X } from "lucide-react"
+import { Search, Clock, Mic, X, Sparkles, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,10 +21,14 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [isListening, setIsListening] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const recognition = useRef<any>(null)
+
+  // Popular searches for suggestions
+  const popularSearches = ["United States", "Japan", "France", "Brazil", "India", "Germany", "Australia", "Canada"]
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -71,30 +74,20 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
     if (query.trim()) {
       const searchTerm = query.toLowerCase()
       const filtered = countries.filter((country) => {
-        // Exact match
         if (country.name.common.toLowerCase().includes(searchTerm)) return true
-
-        // Capital match
         if (country.capital?.some((cap) => cap.toLowerCase().includes(searchTerm))) return true
-
-        // Region match
         if (country.region.toLowerCase().includes(searchTerm)) return true
-
-        // Language match
         if (
           country.languages &&
           Object.values(country.languages).some((lang) => lang.toLowerCase().includes(searchTerm))
         )
           return true
-
-        // Currency match
         if (
           country.currencies &&
           Object.values(country.currencies).some((curr) => curr.name.toLowerCase().includes(searchTerm))
         )
           return true
 
-        // Fuzzy match for typos
         const similarity = calculateSimilarity(country.name.common.toLowerCase(), searchTerm)
         return similarity > 0.6
       })
@@ -121,55 +114,22 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showDropdown) return
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault()
-        setSelectedIndex((prev) => (prev < filteredCountries.length - 1 ? prev + 1 : prev))
-        break
-      case "ArrowUp":
-        e.preventDefault()
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1))
-        break
-      case "Enter":
-        e.preventDefault()
-        if (selectedIndex >= 0 && selectedIndex < filteredCountries.length) {
-          handleCountrySelect(filteredCountries[selectedIndex])
-        } else {
-          handleSubmit(e as any)
-        }
-        break
-      case "Escape":
-        setShowDropdown(false)
-        setSelectedIndex(-1)
-        break
-    }
-  }
-
   const calculateSimilarity = (str1: string, str2: string): number => {
     const longer = str1.length > str2.length ? str1 : str2
     const shorter = str1.length > str2.length ? str2 : str1
-
     if (longer.length === 0) return 1.0
-
     const editDistance = levenshteinDistance(longer, shorter)
     return (longer.length - editDistance) / longer.length
   }
 
   const levenshteinDistance = (str1: string, str2: string): number => {
     const matrix = []
-
     for (let i = 0; i <= str2.length; i++) {
       matrix[i] = [i]
     }
-
     for (let j = 0; j <= str1.length; j++) {
       matrix[0][j] = j
     }
-
     for (let i = 1; i <= str2.length; i++) {
       for (let j = 1; j <= str1.length; j++) {
         if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
@@ -179,13 +139,11 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
         }
       }
     }
-
     return matrix[str2.length][str1.length]
   }
 
   const addToRecentSearches = (searchTerm: string) => {
     if (!searchTerm.trim()) return
-
     const newRecent = [searchTerm, ...recentSearches.filter((s) => s !== searchTerm)].slice(0, 5)
     setRecentSearches(newRecent)
     localStorage.setItem("recent-searches", JSON.stringify(newRecent))
@@ -220,11 +178,6 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
     setShowDropdown(false)
   }
 
-  const clearRecentSearches = () => {
-    setRecentSearches([])
-    localStorage.removeItem("recent-searches")
-  }
-
   const startVoiceSearch = () => {
     if (recognition.current && !isListening) {
       setIsListening(true)
@@ -233,145 +186,205 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
   }
 
   const handleInputFocus = () => {
+    setIsFocused(true)
     if (query.trim() && filteredCountries.length > 0) {
       setShowDropdown(true)
-    } else if (!query.trim() && recentSearches.length > 0) {
+    } else if (!query.trim() && (recentSearches.length > 0 || popularSearches.length > 0)) {
       setShowDropdown(true)
     }
   }
 
+  const handleInputBlur = () => {
+    setIsFocused(false)
+  }
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative animate-fade-in" ref={dropdownRef}>
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            ref={inputRef}
-            type="text"
-            placeholder="Search countries, capitals, languages..."
-            value={query}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            onKeyDown={handleKeyDown}
-            className="pl-10 pr-20 w-full bg-white dark:bg-gray-800"
-            autoComplete="off"
-            aria-label="Search countries"
-            aria-expanded={showDropdown}
-            aria-haspopup="listbox"
-          />
+        <div className={`relative transition-all duration-300 ${isFocused ? "scale-105" : ""}`}>
+          <div className="absolute inset-0 bg-gradient-primary rounded-2xl blur-xl opacity-20 animate-pulse-slow"></div>
+          <div className="relative glass rounded-2xl border border-white/20 overflow-hidden">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70">
+              <Search className={`h-5 w-5 transition-all duration-300 ${isFocused ? "text-white scale-110" : ""}`} />
+            </div>
 
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-            {query && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setQuery("")
-                  onSearch("")
-                  setShowDropdown(false)
-                }}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Search countries, capitals, languages..."
+              value={query}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              className="pl-12 pr-20 h-14 bg-transparent border-0 text-white placeholder:text-white/50 text-lg font-medium focus:ring-0 focus:outline-none"
+              autoComplete="off"
+            />
 
-            {recognition.current && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={startVoiceSearch}
-                disabled={isListening}
-                className={`h-6 w-6 p-0 ${isListening ? "text-red-500" : "text-gray-400"}`}
-                title="Voice search"
-              >
-                <Mic className="h-3 w-3" />
-              </Button>
-            )}
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+              {query && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setQuery("")
+                    onSearch("")
+                    setShowDropdown(false)
+                  }}
+                  className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+
+              {recognition.current && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={startVoiceSearch}
+                  disabled={isListening}
+                  className={`h-8 w-8 p-0 rounded-full transition-all duration-300 ${
+                    isListening
+                      ? "text-red-400 bg-red-400/20 animate-pulse"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
+                  }`}
+                  title="Voice search"
+                >
+                  <Mic className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </form>
 
       {/* Enhanced Dropdown */}
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-96 overflow-y-auto">
-          {/* Recent Searches */}
-          {!query.trim() && recentSearches.length > 0 && (
-            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                  Recent Searches
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearRecentSearches}
-                  className="h-6 text-xs text-gray-400 hover:text-gray-600"
-                >
-                  Clear
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {recentSearches.map((search, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
-                    onClick={() => handleRecentSearch(search)}
+        <div className="absolute top-full left-0 right-0 z-50 mt-3 animate-slide-up">
+          <div className="glass rounded-2xl border border-white/20 shadow-beautiful-xl overflow-hidden">
+            {/* Recent Searches */}
+            {!query.trim() && recentSearches.length > 0 && (
+              <div className="p-4 border-b border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-white/70" />
+                    <span className="text-sm font-medium text-white/90">Recent Searches</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setRecentSearches([])
+                      localStorage.removeItem("recent-searches")
+                    }}
+                    className="h-6 text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
                   >
-                    <Clock className="w-3 h-3 mr-1" />
-                    {search}
-                  </Badge>
-                ))}
+                    Clear
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recentSearches.map((search, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="cursor-pointer bg-white/10 text-white/90 hover:bg-white/20 border-white/20 transition-all duration-200 hover:scale-105"
+                      onClick={() => handleRecentSearch(search)}
+                    >
+                      {search}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Search Results */}
-          {filteredCountries.length > 0 && (
-            <div role="listbox">
-              {filteredCountries.map((country, index) => (
-                <button
-                  key={country.cca3}
-                  onClick={() => handleCountrySelect(country)}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0 ${
-                    selectedIndex === index ? "bg-gray-50 dark:bg-gray-700" : ""
-                  }`}
-                  role="option"
-                  aria-selected={selectedIndex === index}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-4 overflow-hidden rounded shadow-sm flex-shrink-0 bg-white dark:bg-gray-100">
-                      <img
-                        src={country.flags?.svg ?? country.flags?.png ?? "/placeholder.svg"}
-                        alt={`Flag of ${country.name.common}`}
-                        className={`w-full h-full ${country.name.common === "Nepal" ? "object-contain" : "object-cover"}`}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-800 dark:text-white truncate">{country.name.common}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                        {country.capital?.[0] && `${country.capital[0]} • `}
-                        {country.region}
-                        {country.population && ` • ${country.population.toLocaleString()} people`}
+            {/* Popular Searches */}
+            {!query.trim() && recentSearches.length === 0 && (
+              <div className="p-4 border-b border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-4 w-4 text-white/70" />
+                  <span className="text-sm font-medium text-white/90">Popular Searches</span>
+                  <Sparkles className="h-3 w-3 text-yellow-400 animate-pulse" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {popularSearches.map((search, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="cursor-pointer bg-gradient-accent/20 text-white/90 hover:bg-gradient-accent/30 border-white/20 transition-all duration-200 hover:scale-105"
+                      onClick={() => handleRecentSearch(search)}
+                    >
+                      {search}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search Results */}
+            {filteredCountries.length > 0 && (
+              <div className="max-h-80 overflow-y-auto">
+                {filteredCountries.map((country, index) => (
+                  <button
+                    key={country.cca3}
+                    onClick={() => handleCountrySelect(country)}
+                    className={`w-full text-left p-4 hover:bg-white/10 transition-all duration-200 border-b border-white/5 last:border-0 group ${
+                      selectedIndex === index ? "bg-white/10" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <div className="w-10 h-7 overflow-hidden rounded-lg shadow-beautiful flex-shrink-0 bg-white/10">
+                          <img
+                            src={country.flags?.svg ?? country.flags?.png ?? "/placeholder.svg"}
+                            alt={`Flag of ${country.name.common}`}
+                            className={`w-full h-full transition-transform duration-200 group-hover:scale-110 ${
+                              country.name.common === "Nepal" ? "object-contain" : "object-cover"
+                            }`}
+                          />
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-accent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-white group-hover:text-white/90 truncate text-lg">
+                          {country.name.common}
+                        </div>
+                        <div className="text-sm text-white/60 group-hover:text-white/80 truncate">
+                          {country.capital?.[0] && (
+                            <>
+                              <span className="font-medium">{country.capital[0]}</span>
+                              <span className="mx-2">•</span>
+                            </>
+                          )}
+                          <span>{country.region}</span>
+                          {country.population && (
+                            <>
+                              <span className="mx-2">•</span>
+                              <span>{country.population.toLocaleString()} people</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="w-2 h-2 bg-gradient-accent rounded-full animate-pulse"></div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                  </button>
+                ))}
+              </div>
+            )}
 
-          {/* No Results */}
-          {query.trim() && filteredCountries.length === 0 && (
-            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-              <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p>No countries found for "{query}"</p>
-              <p className="text-xs mt-1">Try searching by country name, capital, or region</p>
-            </div>
-          )}
+            {/* No Results */}
+            {query.trim() && filteredCountries.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+                  <Search className="w-8 h-8 text-white/50" />
+                </div>
+                <p className="text-white/90 font-medium mb-1">No countries found</p>
+                <p className="text-white/60 text-sm">Try searching by country name, capital, or region</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

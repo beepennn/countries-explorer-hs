@@ -10,6 +10,7 @@ import { CountryComparison } from "@/components/country-comparison"
 import { FavoritesSystem } from "@/components/favorites-system"
 import { Pagination } from "@/components/pagination"
 import { ErrorMessage } from "@/components/error-message"
+import { Globe, Sparkles, TrendingUp, Users } from "lucide-react"
 
 interface FilterOptions {
   region: string
@@ -181,85 +182,137 @@ export default function CountryExplorer() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Search and Controls */}
-        <div className="mb-8 space-y-4">
-          <EnhancedSearch onSearch={handleSearch} onSelectCountry={handleSelectCountry} countries={countries} />
-
-          <div className="flex flex-wrap items-center gap-4">
-            <AdvancedFilters
-              countries={countries}
-              onFiltersChange={handleFiltersChange}
-              isOpen={showFilters}
-              onToggle={() => setShowFilters(!showFilters)}
-            />
-
-            <CountryComparison
-              countries={countries}
-              isOpen={showComparison}
-              onToggle={() => setShowComparison(!showComparison)}
-            />
-          </div>
-
-          <FavoritesSystem countries={countries} onSelectCountry={handleSelectCountry} />
-        </div>
-
-        {/* Results Summary */}
-        {!isLoading && (
-          <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-            {searchQuery && <span>Search results for "{searchQuery}": </span>}
-            <span className="font-medium">{filteredAndSortedCountries.length} countries found</span>
-            {filteredAndSortedCountries.length !== countries.length && (
-              <span> (filtered from {countries.length} total)</span>
-            )}
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Countries List */}
-          <div className="lg:col-span-1">
-            <CountryList
-              countries={paginatedCountries}
-              isLoading={isLoading}
-              selectedCountry={selectedCountry}
-              onSelectCountry={handleSelectCountry}
-            />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-6">
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-8 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="relative">
+                <Globe className="h-12 w-12 text-white animate-float" />
+                <div className="absolute inset-0 bg-gradient-accent rounded-full opacity-30 animate-pulse-slow"></div>
               </div>
-            )}
+              <Sparkles className="h-8 w-8 text-yellow-300 animate-pulse" />
+            </div>
+            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4 gradient-text">Explore the World</h1>
+            <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+              Discover amazing facts about {countries.length}+ countries around the globe. Search, compare, and learn
+              about different cultures, languages, and more.
+            </p>
+
+            {/* Quick Stats */}
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
+              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
+                <Globe className="h-5 w-5 text-white/70" />
+                <span className="text-white font-semibold">{countries.length}+ Countries</span>
+              </div>
+              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
+                <Users className="h-5 w-5 text-white/70" />
+                <span className="text-white font-semibold">8B+ People</span>
+              </div>
+              <div className="glass rounded-2xl px-6 py-3 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-white/70" />
+                <span className="text-white font-semibold">Live Data</span>
+              </div>
+            </div>
           </div>
 
-          {/* Country Details */}
-          <div className="lg:col-span-2">
-            {selectedCountry ? (
-              <CountryDetail countryCode={selectedCountry} countries={countries} />
-            ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-                <div className="text-gray-500 dark:text-gray-400">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Select a Country</h3>
-                  <p className="text-sm">
-                    Choose a country from the list to view detailed information, or use the search to find a specific
-                    country.
-                  </p>
+          {/* Search Section */}
+          <div className="mb-8 space-y-6">
+            <EnhancedSearch onSearch={handleSearch} onSelectCountry={handleSelectCountry} countries={countries} />
+
+            <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start">
+              <AdvancedFilters
+                countries={countries}
+                onFiltersChange={handleFiltersChange}
+                isOpen={showFilters}
+                onToggle={() => setShowFilters(!showFilters)}
+              />
+
+              <CountryComparison
+                countries={countries}
+                isOpen={showComparison}
+                onToggle={() => setShowComparison(!showComparison)}
+              />
+            </div>
+
+            <FavoritesSystem countries={countries} onSelectCountry={handleSelectCountry} />
+          </div>
+
+          {/* Results Summary */}
+          {!isLoading && (
+            <div className="mb-8 text-center">
+              <div className="glass rounded-2xl px-6 py-4 inline-flex items-center gap-3">
+                {searchQuery && (
+                  <span className="text-white/90">
+                    Search results for <span className="font-semibold text-white">"{searchQuery}"</span>:
+                  </span>
+                )}
+                <span className="font-bold text-white text-lg">
+                  {filteredAndSortedCountries.length} countries found
+                </span>
+                {filteredAndSortedCountries.length !== countries.length && (
+                  <span className="text-white/70">(filtered from {countries.length} total)</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            {/* Countries List */}
+            <div className="xl:col-span-1">
+              <CountryList
+                countries={paginatedCountries}
+                isLoading={isLoading}
+                selectedCountry={selectedCountry}
+                onSelectCountry={handleSelectCountry}
+              />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8">
+                  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Country Details */}
+            <div className="xl:col-span-2">
+              {selectedCountry ? (
+                <CountryDetail countryCode={selectedCountry} countries={countries} />
+              ) : (
+                <div className="glass rounded-3xl p-12 text-center animate-fade-in">
+                  <div className="text-white/70">
+                    <div className="relative w-24 h-24 mx-auto mb-6">
+                      <div className="absolute inset-0 bg-gradient-primary rounded-full opacity-20 animate-pulse-slow"></div>
+                      <div className="w-24 h-24 bg-gradient-accent rounded-full flex items-center justify-center animate-float">
+                        <Globe className="w-12 h-12 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">Select a Country to Explore</h3>
+                    <p className="text-white/80 mb-6 max-w-md mx-auto">
+                      Choose any country from the list to discover fascinating details about its culture, geography,
+                      population, and more.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                        <Sparkles className="w-4 h-4 inline mr-2" />
+                        Rich Details
+                      </div>
+                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                        <TrendingUp className="w-4 h-4 inline mr-2" />
+                        Live Data
+                      </div>
+                      <div className="glass rounded-xl px-4 py-2 text-sm text-white/90">
+                        <Users className="w-4 h-4 inline mr-2" />
+                        Population Stats
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
