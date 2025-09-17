@@ -62,9 +62,9 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 border border-gray-200/50 dark:border-gray-700/50">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
+        <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
           <BarChart3 className="w-5 h-5" />
           Country Comparison
           {selectedCountries.length > 0 && <Badge variant="secondary">{selectedCountries.length}/4 countries</Badge>}
@@ -101,7 +101,7 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
           </Select>
 
           {selectedCountries.length < 4 && (
-            <div className="text-sm text-gray-500 dark:text-gray-400">Add up to 4 countries to compare</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Add up to 4 countries to compare</div>
           )}
         </div>
 
@@ -129,7 +129,7 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <Globe className="w-5 h-5" />
                 Basic Information
               </CardTitle>
@@ -139,10 +139,10 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-2 px-4">Country</th>
-                      <th className="text-left py-2 px-4">Capital</th>
-                      <th className="text-left py-2 px-4">Region</th>
-                      <th className="text-left py-2 px-4">Languages</th>
+                      <th className="text-left py-2 px-4 text-gray-900 dark:text-white">Country</th>
+                      <th className="text-left py-2 px-4 text-gray-900 dark:text-white">Capital</th>
+                      <th className="text-left py-2 px-4 text-gray-900 dark:text-white">Region</th>
+                      <th className="text-left py-2 px-4 text-gray-900 dark:text-white">Languages</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -156,19 +156,23 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
                               className="w-8 h-6 object-cover rounded shadow-sm"
                             />
                             <div>
-                              <div className="font-medium">{country.name.common}</div>
-                              <div className="text-sm text-gray-500">{country.name.official}</div>
+                              <div className="font-medium text-gray-900 dark:text-white">{country.name.common}</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{country.name.official}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4">{country.capital?.join(", ") || "N/A"}</td>
-                        <td className="py-3 px-4">
-                          <div>
-                            <div>{country.region}</div>
-                            {country.subregion && <div className="text-sm text-gray-500">{country.subregion}</div>}
-                          </div>
+                        <td className="py-3 px-4 text-gray-800 dark:text-gray-200">
+                          {country.capital?.join(", ") || "N/A"}
                         </td>
                         <td className="py-3 px-4">
+                          <div>
+                            <div className="text-gray-800 dark:text-gray-200">{country.region}</div>
+                            {country.subregion && (
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{country.subregion}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-gray-800 dark:text-gray-200">
                           {country.languages ? Object.values(country.languages).slice(0, 3).join(", ") : "N/A"}
                           {country.languages && Object.values(country.languages).length > 3 && "..."}
                         </td>
@@ -183,7 +187,7 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
           {/* Population Comparison */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <Users className="w-5 h-5" />
                 Population Comparison
               </CardTitle>
@@ -200,15 +204,17 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
                       <div key={country.cca3} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">#{index + 1}</span>
+                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">#{index + 1}</span>
                             <img
                               src={country.flags?.svg || country.flags?.png || "/placeholder.svg"}
                               alt={`Flag of ${country.name.common}`}
                               className="w-5 h-4 object-cover rounded"
                             />
-                            <span className="font-medium">{country.name.common}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{country.name.common}</span>
                           </div>
-                          <span className="font-mono text-sm">{country.population.toLocaleString()}</span>
+                          <span className="font-mono text-sm text-gray-800 dark:text-gray-200">
+                            {country.population.toLocaleString()}
+                          </span>
                         </div>
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
@@ -226,7 +232,7 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
           {/* Area Comparison */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <MapPin className="w-5 h-5" />
                 Area Comparison (km²)
               </CardTitle>
@@ -243,15 +249,17 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
                       <div key={country.cca3} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">#{index + 1}</span>
+                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">#{index + 1}</span>
                             <img
                               src={country.flags?.svg || country.flags?.png || "/placeholder.svg"}
                               alt={`Flag of ${country.name.common}`}
                               className="w-5 h-4 object-cover rounded"
                             />
-                            <span className="font-medium">{country.name.common}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{country.name.common}</span>
                           </div>
-                          <span className="font-mono text-sm">{country.area.toLocaleString()} km²</span>
+                          <span className="font-mono text-sm text-gray-800 dark:text-gray-200">
+                            {country.area.toLocaleString()} km²
+                          </span>
                         </div>
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
@@ -269,31 +277,31 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
           {/* Quick Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Statistics</CardTitle>
+              <CardTitle className="text-gray-900 dark:text-white">Quick Statistics</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">{selectedCountries.length}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Countries</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-400">Countries</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {formatNumber(selectedCountries.reduce((sum, c) => sum + c.population, 0))}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Population</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-400">Total Population</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">
                     {formatNumber(selectedCountries.reduce((sum, c) => sum + c.area, 0))}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Area (km²)</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-400">Total Area (km²)</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="text-2xl font-bold text-orange-600">
                     {new Set(selectedCountries.map((c) => c.region)).size}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Regions</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-400">Regions</div>
                 </div>
               </div>
             </CardContent>
@@ -302,9 +310,9 @@ export function CountryComparison({ countries, isOpen, onToggle }: CountryCompar
       )}
 
       {selectedCountries.length === 0 && (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-600 dark:text-gray-400">
           <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>Select countries above to start comparing</p>
+          <p className="text-gray-800 dark:text-gray-300">Select countries above to start comparing</p>
         </div>
       )}
     </div>

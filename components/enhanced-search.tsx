@@ -204,9 +204,9 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
         <div className={`relative transition-all duration-300 ${isFocused ? "scale-105" : ""}`}>
           <div className="absolute inset-0 bg-gradient-primary rounded-2xl blur-xl opacity-20 animate-pulse-slow"></div>
           <div className="relative glass rounded-2xl border border-gray-200/50 dark:border-white/20 overflow-hidden">
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white/70">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-white/70">
               <Search
-                className={`h-5 w-5 transition-all duration-300 ${isFocused ? "text-gray-700 dark:text-white scale-110" : ""}`}
+                className={`h-5 w-5 transition-all duration-300 ${isFocused ? "text-gray-800 dark:text-white scale-110" : ""}`}
               />
             </div>
 
@@ -218,7 +218,7 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
               onChange={handleInputChange}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
-              className="pl-12 pr-20 h-14 bg-transparent border-0 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/50 text-lg font-medium focus:ring-0 focus:outline-none"
+              className="pl-12 pr-20 h-14 bg-transparent border-0 text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-white/50 text-lg font-medium focus:ring-0 focus:outline-none"
               autoComplete="off"
             />
 
@@ -233,7 +233,7 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
                     onSearch("")
                     setShowDropdown(false)
                   }}
-                  className="h-8 w-8 p-0 text-gray-500 dark:text-white/70 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10 rounded-full"
+                  className="h-8 w-8 p-0 text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10 rounded-full"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -249,7 +249,7 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
                   className={`h-8 w-8 p-0 rounded-full transition-all duration-300 ${
                     isListening
                       ? "text-red-500 bg-red-100 dark:bg-red-400/20 animate-pulse"
-                      : "text-gray-500 dark:text-white/70 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10"
+                      : "text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10"
                   }`}
                   title="Voice search"
                 >
@@ -270,8 +270,8 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
               <div className="p-4 border-b border-gray-200/50 dark:border-white/10">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-500 dark:text-white/70" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-white/90">Recent Searches</span>
+                    <Clock className="h-4 w-4 text-gray-600 dark:text-white/70" />
+                    <span className="text-sm font-medium text-gray-800 dark:text-white/90">Recent Searches</span>
                   </div>
                   <Button
                     variant="ghost"
@@ -280,7 +280,7 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
                       setRecentSearches([])
                       localStorage.removeItem("recent-searches")
                     }}
-                    className="h-6 text-xs text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/80 hover:bg-gray-100/50 dark:hover:bg-white/10"
+                    className="h-6 text-xs text-gray-600 dark:text-white/50 hover:text-gray-800 dark:hover:text-white/80 hover:bg-gray-100/50 dark:hover:bg-white/10"
                   >
                     Clear
                   </Button>
@@ -290,7 +290,7 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
                     <Badge
                       key={index}
                       variant="secondary"
-                      className="cursor-pointer bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/90 hover:bg-gray-200 dark:hover:bg-white/20 border-gray-200 dark:border-white/20 transition-all duration-200 hover:scale-105"
+                      className="cursor-pointer bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-white/90 hover:bg-gray-200 dark:hover:bg-white/20 border-gray-200 dark:border-white/20 transition-all duration-200 hover:scale-105"
                       onClick={() => handleRecentSearch(search)}
                     >
                       {search}
@@ -304,16 +304,16 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
             {!query.trim() && recentSearches.length === 0 && (
               <div className="p-4 border-b border-gray-200/50 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="h-4 w-4 text-gray-500 dark:text-white/70" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-white/90">Popular Searches</span>
-                  <Sparkles className="h-3 w-3 text-yellow-500 dark:text-yellow-400 animate-pulse" />
+                  <TrendingUp className="h-4 w-4 text-gray-600 dark:text-white/70" />
+                  <span className="text-sm font-medium text-gray-800 dark:text-white/90">Popular Searches</span>
+                  <Sparkles className="h-3 w-3 text-yellow-600 dark:text-yellow-400 animate-pulse" />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {popularSearches.map((search, index) => (
                     <Badge
                       key={index}
                       variant="secondary"
-                      className="cursor-pointer bg-gradient-accent/20 text-gray-700 dark:text-white/90 hover:bg-gradient-accent/30 border-gray-200 dark:border-white/20 transition-all duration-200 hover:scale-105"
+                      className="cursor-pointer bg-gradient-accent/20 text-gray-800 dark:text-white/90 hover:bg-gradient-accent/30 border-gray-200 dark:border-white/20 transition-all duration-200 hover:scale-105"
                       onClick={() => handleRecentSearch(search)}
                     >
                       {search}
@@ -348,10 +348,10 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-accent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-800 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white/90 truncate text-lg">
+                        <div className="font-semibold text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white/90 truncate text-lg">
                           {country.name.common}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-white/60 group-hover:text-gray-700 dark:group-hover:text-white/80 truncate">
+                        <div className="text-sm text-gray-700 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 truncate">
                           {country.capital?.[0] && (
                             <>
                               <span className="font-medium">{country.capital[0]}</span>
@@ -380,10 +380,10 @@ export function EnhancedSearch({ onSearch, onSelectCountry, countries }: Enhance
             {query.trim() && filteredCountries.length === 0 && (
               <div className="p-8 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-white/10 rounded-full flex items-center justify-center">
-                  <Search className="w-8 h-8 text-gray-400 dark:text-white/50" />
+                  <Search className="w-8 h-8 text-gray-500 dark:text-white/50" />
                 </div>
-                <p className="text-gray-700 dark:text-white/90 font-medium mb-1">No countries found</p>
-                <p className="text-gray-500 dark:text-white/60 text-sm">
+                <p className="text-gray-800 dark:text-white/90 font-medium mb-1">No countries found</p>
+                <p className="text-gray-600 dark:text-white/60 text-sm">
                   Try searching by country name, capital, or region
                 </p>
               </div>

@@ -10,7 +10,6 @@ import {
   HelpCircle,
   Github,
   Twitter,
-  Youtube,
   Shield,
   Zap,
   Heart,
@@ -43,9 +42,8 @@ export function Footer() {
       icon: Github,
       href: "https://github.com/beepennn",
       label: "GitHub",
-      color: "hover:text-gray-600 dark:hover:text-gray-400",
+      color: "hover:text-gray-800 dark:hover:text-gray-400",
     },
-    { icon: Youtube, href: "https://youtube.com/@beepennn", label: "YouTube", color: "hover:text-red-600" },
   ]
 
   const navigationLinks = [
@@ -79,7 +77,7 @@ export function Footer() {
       </div>
 
       <div className="relative container mx-auto px-4 py-16">
-        {/* Top Section - Brand & Newsletter */}
+        {/* Top Section - Brand Only */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center">
@@ -92,22 +90,8 @@ export function Footer() {
           </div>
 
           <p className="text-gray-200 text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of explorers discovering amazing facts about countries worldwide. Get the latest updates and
-            exclusive content.
+            Explore amazing facts about countries worldwide and discover the fascinating diversity of our world.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-            <div className="flex-1 w-full">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <Button className="gradient-primary text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all duration-300">
-              Subscribe
-            </Button>
-          </div>
         </div>
 
         {/* Stats Section */}
@@ -168,7 +152,7 @@ export function Footer() {
           <div className="lg:col-span-1">
             <h3 className="text-white font-semibold mb-6 text-lg">Connect With Us</h3>
 
-            {/* Social Links */}
+            {/* Social Links - Removed YouTube */}
             <div className="grid grid-cols-3 gap-3 mb-6">
               {socialLinks.map((social, index) => (
                 <a

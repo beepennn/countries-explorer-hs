@@ -70,7 +70,7 @@ export function FavoritesSystem({ countries, onSelectCountry }: FavoritesSystemP
 
       {/* Favorites List */}
       {showFavorites && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
           {favoriteCountries.length > 0 ? (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {favoriteCountries.map((country) => (
@@ -88,8 +88,8 @@ export function FavoritesSystem({ countries, onSelectCountry }: FavoritesSystemP
                         />
                       </div>
                       <div>
-                        <div className="font-medium text-gray-800 dark:text-white">{country.name.common}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="font-medium text-gray-900 dark:text-white">{country.name.common}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           {country.region} • {country.population.toLocaleString()} people
                         </div>
                       </div>
@@ -108,10 +108,12 @@ export function FavoritesSystem({ countries, onSelectCountry }: FavoritesSystemP
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-gray-600 dark:text-gray-400">
               <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium mb-2">No favorites yet</p>
-              <p className="text-sm">Click the heart icon on any country to add it to your favorites</p>
+              <p className="text-lg font-medium mb-2 text-gray-800 dark:text-white">No favorites yet</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Click the heart icon on any country to add it to your favorites
+              </p>
             </div>
           )}
         </div>
@@ -151,7 +153,7 @@ export function FavoriteButton({ countryCode }: { countryCode: string }) {
       variant="ghost"
       size="sm"
       onClick={toggleFavorite}
-      className={`${isFavorite ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"}`}
+      className={`${isFavorite ? "text-red-500 hover:text-red-700" : "text-gray-500 dark:text-gray-400 hover:text-red-500"}`}
     >
       <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
     </Button>
