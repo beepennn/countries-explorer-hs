@@ -20,7 +20,7 @@ export default function TermsPage() {
 
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-md p-8 border border-gray-200/50 dark:border-gray-700/50">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Terms & Conditions</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">Last updated: January 2025</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">Last updated: January 2026</p>
 
           <div className="prose dark:prose-invert max-w-none">
             <section className="mb-8">

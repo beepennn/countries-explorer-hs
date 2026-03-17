@@ -63,8 +63,8 @@ export function Footer() {
 
   const stats = [
     { icon: Globe, label: "Countries", value: "195+", color: "text-blue-500" },
-    { icon: Users, label: "Monthly Users", value: "50K+", color: "text-green-500" },
-    { icon: Star, label: "User Rating", value: "4.9/5", color: "text-yellow-500" },
+    { icon: Users, label: "Monthly Users", value: "5K+", color: "text-green-500" },
+    { icon: Star, label: "User Rating", value: "4.88/5", color: "text-yellow-500" },
     { icon: Award, label: "Awards", value: "12", color: "text-purple-500" },
   ]
 

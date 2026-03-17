@@ -17,7 +17,7 @@ export default function CookiePolicyPage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">Cookie Policy</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Last updated: January 2025</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Last updated: January 2026</p>
 
           <div className="prose dark:prose-invert max-w-none">
             <section className="mb-8">
