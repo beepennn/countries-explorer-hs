@@ -15,7 +15,11 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Countries Explorer",
   description: "Explore countries around the world with detailed information",
-    generator: 'v0.app'
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+    ],
+  },
 }
 
 export default function RootLayout({
@@ -27,7 +31,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} flex min-h-screen flex-col`}>
         <AnalyticsProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <Suspense fallback={null}>
               <Header />
               <main className="flex-1">{children}</main>

@@ -215,12 +215,7 @@ export default function CountryExplorer() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 mb-8 animate-fade-in">
             <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
             <span className="text-sm font-medium text-gray-800 dark:text-white">Discover the World</span>
-            <Badge
-              variant="secondary"
-              className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
-            >
-              v2.0
-            </Badge>
+            
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
