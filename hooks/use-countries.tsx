@@ -23,9 +23,9 @@ export const useCountries = () => {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,cca3,region,subregion,capital,population,area,languages,currencies,flags",
-        )
+        const res = await fetch("/api/countries", {
+          cache: "force-cache",
+        })
         if (!res.ok) {
           const text = await res.text() // helpful for debugging
           throw new Error(`HTTP error! Status: ${res.status} — ${text}`)
