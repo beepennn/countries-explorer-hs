@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
+
 import { useCountries } from "@/hooks/use-countries"
 import { CountryList } from "@/components/country-list"
 import { CountryDetail } from "@/components/country-detail"
@@ -10,10 +11,25 @@ import { CountryComparison } from "@/components/country-comparison"
 import { FavoritesSystem } from "@/components/favorites-system"
 import { Pagination } from "@/components/pagination"
 import { ErrorMessage } from "@/components/error-message"
-import { Globe, Sparkles, TrendingUp, Users, Search, Filter, Heart, BarChart3, ArrowRight, Zap } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+
+import {
+  ArrowRight,
+  BarChart3,
+  Compass,
+  Filter,
+  Globe2,
+  Heart,
+  Map,
+  Search,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react"
 
 interface FilterOptions {
   region: string
@@ -30,132 +46,254 @@ interface FilterOptions {
 
 const ITEMS_PER_PAGE = 20
 
+const DEFAULT_FILTERS: FilterOptions = {
+  region: "",
+  subregion: "",
+  populationMin: 0,
+  populationMax: 1500000000,
+  areaMin: 0,
+  areaMax: 20000000,
+  language: "",
+  currency: "",
+  sortBy: "name",
+  sortOrder: "asc",
+}
+
 export default function CountryExplorer() {
   const { countries, isLoading, error } = useCountries()
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
-  const [filters, setFilters] = useState<FilterOptions>({
-    region: "",
-    subregion: "",
-    populationMin: 0,
-    populationMax: 1500000000,
-    areaMin: 0,
-    areaMax: 20000000,
-    language: "",
-    currency: "",
-    sortBy: "name",
-    sortOrder: "asc",
-  })
+  const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS)
 
-  // Load selected country from URL on mount
+  /*
+   * Load selected country from URL
+   */
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const countryParam = urlParams.get("country")
-    if (countryParam) {
-      setSelectedCountry(countryParam)
+    const params = new URLSearchParams(window.location.search)
+    const country = params.get("country")
+
+    if (country) {
+      setSelectedCountry(country)
     }
   }, [])
 
-  // Update URL when country is selected
+  /*
+   * Keep selected country in URL
+   */
   useEffect(() => {
     const url = new URL(window.location.href)
+
     if (selectedCountry) {
       url.searchParams.set("country", selectedCountry)
     } else {
       url.searchParams.delete("country")
     }
+
     window.history.replaceState({}, "", url.toString())
   }, [selectedCountry])
 
-  // Filter and sort countries
+  /*
+   * Main country filtering + sorting
+   */
   const filteredAndSortedCountries = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+
     const filtered = countries.filter((country) => {
-      // Search query filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        const matchesName = country.name.common.toLowerCase().includes(query)
-        const matchesCapital = country.capital?.some((cap) => cap.toLowerCase().includes(query))
-        const matchesRegion = country.region.toLowerCase().includes(query)
+      if (normalizedQuery) {
+        const matchesName =
+          country.name.common.toLowerCase().includes(normalizedQuery) ||
+          country.name.official.toLowerCase().includes(normalizedQuery)
+
+        const matchesCode = country.cca3.toLowerCase().includes(normalizedQuery)
+
+        const matchesCapital = country.capital?.some((capital) =>
+          capital.toLowerCase().includes(normalizedQuery),
+        )
+
+        const matchesRegion =
+          country.region.toLowerCase().includes(normalizedQuery) ||
+          country.subregion?.toLowerCase().includes(normalizedQuery)
+
         const matchesLanguage =
-          country.languages && Object.values(country.languages).some((lang) => lang.toLowerCase().includes(query))
+          country.languages &&
+          Object.values(country.languages).some((language) =>
+            language.toLowerCase().includes(normalizedQuery),
+          )
+
         const matchesCurrency =
           country.currencies &&
-          Object.values(country.currencies).some((curr) => curr.name.toLowerCase().includes(query))
+          Object.values(country.currencies).some(
+            (currency) =>
+              currency.name.toLowerCase().includes(normalizedQuery) ||
+              currency.symbol?.toLowerCase().includes(normalizedQuery),
+          )
 
-        if (!matchesName && !matchesCapital && !matchesRegion && !matchesLanguage && !matchesCurrency) {
+        if (
+          !matchesName &&
+          !matchesCode &&
+          !matchesCapital &&
+          !matchesRegion &&
+          !matchesLanguage &&
+          !matchesCurrency
+        ) {
           return false
         }
       }
 
-      // Advanced filters
-      if (filters.region && country.region !== filters.region) return false
-      if (filters.subregion && country.subregion !== filters.subregion) return false
-      if (country.population < filters.populationMin || country.population > filters.populationMax) return false
-      if (country.area < filters.areaMin || country.area > filters.areaMax) return false
-
-      if (filters.language && country.languages) {
-        const hasLanguage = Object.values(country.languages).some((lang) =>
-          lang.toLowerCase().includes(filters.language.toLowerCase()),
-        )
-        if (!hasLanguage) return false
+      if (filters.region && country.region !== filters.region) {
+        return false
       }
 
-      if (filters.currency && country.currencies) {
-        const hasCurrency = Object.values(country.currencies).some((curr) =>
-          curr.name.toLowerCase().includes(filters.currency.toLowerCase()),
-        )
-        if (!hasCurrency) return false
+      if (filters.subregion && country.subregion !== filters.subregion) {
+        return false
+      }
+
+      if (
+        country.population < filters.populationMin ||
+        country.population > filters.populationMax
+      ) {
+        return false
+      }
+
+      if (country.area < filters.areaMin || country.area > filters.areaMax) {
+        return false
+      }
+
+      if (filters.language) {
+        const hasLanguage =
+          country.languages &&
+          Object.values(country.languages).some((language) =>
+            language.toLowerCase().includes(filters.language.toLowerCase()),
+          )
+
+        if (!hasLanguage) {
+          return false
+        }
+      }
+
+      if (filters.currency) {
+        const hasCurrency =
+          country.currencies &&
+          Object.values(country.currencies).some((currency) =>
+            currency.name
+              .toLowerCase()
+              .includes(filters.currency.toLowerCase()),
+          )
+
+        if (!hasCurrency) {
+          return false
+        }
       }
 
       return true
     })
 
-    // Sort countries
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any
+    return [...filtered].sort((a, b) => {
+      let aValue: string | number
+      let bValue: string | number
 
       switch (filters.sortBy) {
         case "population":
           aValue = a.population
           bValue = b.population
           break
+
         case "area":
           aValue = a.area
           bValue = b.area
           break
+
         case "region":
           aValue = a.region
           bValue = b.region
           break
+
         case "capital":
           aValue = a.capital?.[0] || ""
           bValue = b.capital?.[0] || ""
           break
+
         default:
           aValue = a.name.common
           bValue = b.name.common
       }
 
       if (typeof aValue === "string" && typeof bValue === "string") {
-        return filters.sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
-      } else {
-        return filters.sortOrder === "asc" ? aValue - bValue : bValue - aValue
+        return filters.sortOrder === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue)
       }
-    })
 
-    return filtered
+      const difference = Number(aValue) - Number(bValue)
+
+      return filters.sortOrder === "asc" ? difference : -difference
+    })
   }, [countries, searchQuery, filters])
 
-  // Paginated countries
+  /*
+   * Pagination
+   */
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredAndSortedCountries.length / ITEMS_PER_PAGE),
+  )
+
   const paginatedCountries = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredAndSortedCountries.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+
+    return filteredAndSortedCountries.slice(start, start + ITEMS_PER_PAGE)
   }, [filteredAndSortedCountries, currentPage])
 
-  const totalPages = Math.ceil(filteredAndSortedCountries.length / ITEMS_PER_PAGE)
+  /*
+   * Global country statistics
+   */
+  const stats = useMemo(() => {
+    const validRegions = countries
+      .map((country) => country.region)
+      .filter(Boolean)
+
+    const totalPopulation = countries.reduce(
+      (total, country) => total + country.population,
+      0,
+    )
+
+    const totalArea = countries.reduce(
+      (total, country) => total + country.area,
+      0,
+    )
+
+    return {
+      countries: countries.length,
+      regions: new Set(validRegions).size,
+      population: totalPopulation,
+      area: totalArea,
+    }
+  }, [countries])
+
+  /*
+   * Count only meaningful active filters.
+   * Sort settings don't count as filters.
+   */
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+
+    if (filters.region) count++
+    if (filters.subregion) count++
+    if (filters.language) count++
+    if (filters.currency) count++
+
+    if (filters.populationMin !== DEFAULT_FILTERS.populationMin) count++
+    if (filters.populationMax !== DEFAULT_FILTERS.populationMax) count++
+
+    if (filters.areaMin !== DEFAULT_FILTERS.areaMin) count++
+    if (filters.areaMax !== DEFAULT_FILTERS.areaMax) count++
+
+    return count
+  }, [filters])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -173,296 +311,461 @@ export default function CountryExplorer() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: "smooth" })
+
+    document.getElementById("countries")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
   }
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    if (!countries) return { total: 0, regions: 0, totalPopulation: 0, totalArea: 0 }
-
-    const regions = new Set(countries.map((c) => c.region)).size
-    const totalPopulation = countries.reduce((sum, c) => sum + c.population, 0)
-    const totalArea = countries.reduce((sum, c) => sum + c.area, 0)
-
-    return {
-      total: countries.length,
-      regions,
-      totalPopulation,
-      totalArea,
-    }
-  }, [countries])
+  const scrollToExplorer = () => {
+    document.getElementById("explore")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
+  }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <ErrorMessage message={error} />
-      </div>
+      <main className="min-h-screen bg-slate-50 px-4 py-16 dark:bg-slate-950">
+        <div className="mx-auto max-w-4xl">
+          <ErrorMessage message={error} />
+        </div>
+      </main>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
-      {/* Enhanced Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-pink-600/10 dark:from-blue-900/30 dark:via-purple-900/30 dark:to-pink-900/30" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 dark:bg-blue-400/30 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 dark:bg-purple-400/30 rounded-full blur-3xl animate-float" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-400/15 dark:bg-pink-400/20 rounded-full blur-3xl animate-pulse-slow" />
-        </div>
+    <div className="min-h-screen overflow-hidden bg-slate-50 text-slate-950 dark:bg-[#07101f] dark:text-white">
+      {/* =========================================================
+          HERO
+      ========================================================== */}
 
-        <div className="relative container mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 mb-8 animate-fade-in">
-            <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
-            <span className="text-sm font-medium text-gray-800 dark:text-white">Discover the World</span>
-            
-          </div>
+      <section className="relative overflow-hidden border-b border-slate-200/70 dark:border-white/10">
+        {/* Background */}
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-              Explore
-            </span>
-            <br />
-            <span className="text-gray-900 dark:text-white">Every Country</span>
-          </h1>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-100 dark:from-[#07101f] dark:via-[#0d1b3d] dark:to-[#17255e]" />
 
-          <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in">
-            Journey through {stats.total} countries, discover cultures, compare statistics, and explore the fascinating
-            diversity of our world.
-          </p>
+        <div className="absolute -left-24 top-10 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
 
-          {/* Hero Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 max-w-4xl mx-auto">
-            {[
-              {
-                icon: Globe,
-                label: "Countries",
-                value: stats.total.toLocaleString(),
-                color: "text-blue-600 dark:text-blue-500",
-              },
-              {
-                icon: Users,
-                label: "Regions",
-                value: stats.regions.toString(),
-                color: "text-green-600 dark:text-green-500",
-              },
-              {
-                icon: Users,
-                label: "Population",
-                value: `${(stats.totalPopulation / 1e9).toFixed(1)}B`,
-                color: "text-purple-600 dark:text-purple-500",
-              },
-              {
-                icon: TrendingUp,
-                label: "Total Area",
-                value: `${(stats.totalArea / 1e6).toFixed(1)}M km²`,
-                color: "text-orange-600 dark:text-orange-500",
-              },
-            ].map((stat, index) => (
-              <Card
-                key={index}
-                className="bg-white/90 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:shadow-lg hover:scale-105 transition-all duration-300 animate-scale-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
+        <div className="absolute -right-32 top-24 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-64 w-[700px] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8 lg:pb-28 lg:pt-28">
+          <div className="mx-auto max-w-4xl text-center">
+            {/* Eyebrow */}
+
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/70 px-4 py-2 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Your interactive guide to the world
+              </span>
+            </div>
+
+            {/* Heading */}
+
+            <h1 className="text-balance text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
+              The world,
+              <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-cyan-300 dark:to-violet-400">
+                one country at a time.
+              </span>
+            </h1>
+
+            <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300 sm:text-xl">
+              Search countries, discover capitals and languages, explore
+              population and geography, save favorites, and compare nations
+              side by side.
+            </p>
+
+            {/* Hero CTAs */}
+
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button
+                size="lg"
+                onClick={scrollToExplorer}
+                className="h-12 rounded-xl bg-slate-950 px-7 text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-2xl dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
               >
-                <CardContent className="p-6 text-center">
-                  <stat.icon className={`w-8 h-8 mx-auto mb-3 ${stat.color}`} />
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{stat.value}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                <Compass className="mr-2 h-5 w-5" />
+                Explore Countries
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
 
-          {/* Hero Actions - Removed Watch Demo button */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-              onClick={() => document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Start Exploring
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-
-          {/* Feature Highlights */}
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {[
-              { icon: Heart, title: "Save Favorites", desc: "Bookmark countries you love" },
-              { icon: BarChart3, title: "Compare Data", desc: "Side-by-side comparisons" },
-              { icon: Zap, title: "Real-time Search", desc: "Instant results as you type" },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="text-center animate-fade-in"
-                style={{ animationDelay: `${0.5 + index * 0.1}s` }}
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => {
+                  scrollToExplorer()
+                  setShowComparison(true)
+                }}
+                className="h-12 rounded-xl border-slate-300 bg-white/70 px-7 backdrop-blur-xl dark:border-white/15 dark:bg-white/5"
               >
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 flex items-center justify-center">
-                  <feature.icon className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+                <BarChart3 className="mr-2 h-5 w-5" />
+                Compare Countries
+              </Button>
+            </div>
+
+            {/* Mini features */}
+
+            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <span className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-500" />
+                Fast search
+              </span>
+
+              <span className="flex items-center gap-2">
+                <Heart className="h-4 w-4 text-rose-500" />
+                Favorites
+              </span>
+
+              <span className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-blue-500" />
+                Comparisons
+              </span>
+            </div>
+          </div>
+
+          {/* =====================================================
+              STATS
+          ====================================================== */}
+
+          <div className="mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
+            <Card className="border-white/60 bg-white/70 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06]">
+              <CardContent className="p-5 sm:p-6">
+                <Globe2 className="mb-4 h-7 w-7 text-blue-600 dark:text-blue-400" />
+
+                <div className="text-2xl font-black sm:text-3xl">
+                  {isLoading ? "—" : stats.countries.toLocaleString()}
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-400">{feature.desc}</p>
-              </div>
-            ))}
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Countries & territories
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/60 bg-white/70 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06]">
+              <CardContent className="p-5 sm:p-6">
+                <Map className="mb-4 h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+
+                <div className="text-2xl font-black sm:text-3xl">
+                  {isLoading ? "—" : stats.regions}
+                </div>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  World regions
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/60 bg-white/70 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06]">
+              <CardContent className="p-5 sm:p-6">
+                <Users className="mb-4 h-7 w-7 text-violet-600 dark:text-violet-400" />
+
+                <div className="text-2xl font-black sm:text-3xl">
+                  {isLoading
+                    ? "—"
+                    : `${(stats.population / 1_000_000_000).toFixed(1)}B`}
+                </div>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Combined population
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/60 bg-white/70 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06]">
+              <CardContent className="p-5 sm:p-6">
+                <TrendingUp className="mb-4 h-7 w-7 text-orange-600 dark:text-orange-400" />
+
+                <div className="text-2xl font-black sm:text-3xl">
+                  {isLoading
+                    ? "—"
+                    : `${(stats.area / 1_000_000).toFixed(1)}M`}
+                </div>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Million km² of area
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8" id="search-section">
-        {/* Search and Controls */}
-        <div className="bg-white/90 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-gray-200/50 dark:border-gray-700/50 animate-slide-up">
-          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between mb-6">
-            <div className="flex-1 max-w-2xl">
-              <EnhancedSearch onSearch={handleSearch} onSelectCountry={handleSelectCountry} countries={countries} />
+      {/* =========================================================
+          EXPLORER
+      ========================================================== */}
+
+      <main
+        id="explore"
+        className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10 sm:px-6 lg:px-8 lg:py-14"
+      >
+        {/* Section Heading */}
+
+        <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <Badge
+              variant="outline"
+              className="mb-3 border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-300"
+            >
+              <Globe2 className="mr-1.5 h-3.5 w-3.5" />
+              Country Explorer
+            </Badge>
+
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+              Find your next country to explore
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-slate-600 dark:text-slate-400">
+              Search by country, capital, region, language, currency, or
+              three-letter country code.
+            </p>
+          </div>
+
+          {!isLoading && (
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              <strong className="text-slate-900 dark:text-white">
+                {filteredAndSortedCountries.length.toLocaleString()}
+              </strong>{" "}
+              results
+            </div>
+          )}
+        </div>
+
+        {/* =====================================================
+            SEARCH CONTROL PANEL
+        ====================================================== */}
+
+        <div className="relative z-20 mb-8 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-xl dark:border-white/10 dark:bg-[#0d172b]/90 dark:shadow-black/20 sm:p-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
+            <div className="min-w-0 flex-1">
+              <EnhancedSearch
+                onSearch={handleSearch}
+                onSelectCountry={handleSelectCountry}
+                countries={countries}
+              />
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={showFilters ? "default" : "outline"}
-                onClick={() => setShowFilters(!showFilters)}
-                className="bg-white/70 dark:bg-gray-700/50 backdrop-blur-sm border-gray-300 dark:border-gray-600/50 text-gray-800 dark:text-white hover:bg-white/90 dark:hover:bg-gray-600/50"
+                onClick={() => setShowFilters((value) => !value)}
+                className="h-10 rounded-xl"
               >
-                <Filter className="w-4 h-4 mr-2" />
+                <Filter className="mr-2 h-4 w-4" />
                 Filters
-                {Object.values(filters).some(
-                  (v) => v !== "" && v !== null && (Array.isArray(v) ? v.length > 0 : true),
-                ) && (
-                  <Badge variant="destructive" className="ml-2 px-1.5 py-0.5 text-xs">
-                    Active
+
+                {activeFilterCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 min-w-5 justify-center px-1.5"
+                  >
+                    {activeFilterCount}
                   </Badge>
                 )}
               </Button>
 
               <Button
                 variant={showComparison ? "default" : "outline"}
-                onClick={() => setShowComparison(!showComparison)}
-                className="bg-white/70 dark:bg-gray-700/50 backdrop-blur-sm border-gray-300 dark:border-gray-600/50 text-gray-800 dark:text-white hover:bg-white/90 dark:hover:bg-gray-600/50"
+                onClick={() => setShowComparison((value) => !value)}
+                className="h-10 rounded-xl"
               >
-                <BarChart3 className="w-4 h-4 mr-2" />
+                <BarChart3 className="mr-2 h-4 w-4" />
                 Compare
               </Button>
             </div>
           </div>
 
-          {/* Results Summary */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700 dark:text-gray-400">
-            <span>
-              Showing {paginatedCountries.length} of {filteredAndSortedCountries.length} countries
-            </span>
-            {searchQuery && (
-              <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
-                Search: "{searchQuery}"
-              </Badge>
-            )}
-          </div>
+          {(searchQuery || activeFilterCount > 0) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+              <span className="text-sm text-slate-500 dark:text-slate-400">
+                Active:
+              </span>
+
+              {searchQuery && (
+                <Badge variant="secondary" className="rounded-lg">
+                  Search: “{searchQuery}”
+                </Badge>
+              )}
+
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="rounded-lg">
+                  {activeFilterCount}{" "}
+                  {activeFilterCount === 1 ? "filter" : "filters"}
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Advanced Filters */}
+        {/* =====================================================
+            OPTIONAL PANELS
+        ====================================================== */}
+
         {showFilters && (
-          <div className="mb-8 animate-slide-up">
+          <div className="mb-8">
             <AdvancedFilters
               countries={countries}
               onFiltersChange={handleFiltersChange}
               isOpen={showFilters}
-              onToggle={() => setShowFilters(!showFilters)}
+              onToggle={() => setShowFilters(false)}
             />
           </div>
         )}
 
-        {/* Country Comparison */}
         {showComparison && (
-          <div className="mb-8 animate-slide-up">
+          <div className="mb-8">
             <CountryComparison
               countries={countries}
               isOpen={showComparison}
-              onToggle={() => setShowComparison(!showComparison)}
+              onToggle={() => setShowComparison(false)}
             />
           </div>
         )}
 
-        {/* Favorites System */}
+        {/* Favorites */}
+
         <div className="mb-8">
-          <FavoritesSystem countries={countries} onSelectCountry={handleSelectCountry} />
+          <FavoritesSystem
+            countries={countries}
+            onSelectCountry={handleSelectCountry}
+          />
         </div>
 
-        {/* Results Summary */}
-        {!isLoading && (
-          <div className="mb-8 text-center">
-            <div className="bg-white/90 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-6 py-4 inline-flex items-center gap-3 border border-gray-200/50 dark:border-gray-700/50">
-              {searchQuery && (
-                <span className="text-gray-700 dark:text-gray-300">
-                  Search results for{" "}
-                  <span className="font-semibold text-gray-900 dark:text-white">"{searchQuery}"</span>:
-                </span>
+        {/* =====================================================
+            COUNTRY WORKSPACE
+        ====================================================== */}
+
+        <section id="countries" className="scroll-mt-24">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                Countries
+              </h3>
+
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {isLoading
+                  ? "Loading country data..."
+                  : `Showing ${paginatedCountries.length} of ${filteredAndSortedCountries.length} matching countries`}
+              </p>
+            </div>
+
+            {searchQuery && (
+              <Badge
+                variant="outline"
+                className="rounded-full border-slate-300 bg-white dark:border-white/10 dark:bg-white/5"
+              >
+                <Search className="mr-1.5 h-3.5 w-3.5" />
+                {searchQuery}
+              </Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-7 xl:grid-cols-[minmax(350px,0.9fr)_minmax(0,2fr)]">
+            {/* Country list */}
+
+            <div className="min-w-0">
+              <CountryList
+                countries={paginatedCountries}
+                isLoading={isLoading}
+                selectedCountry={selectedCountry}
+                onSelectCountry={handleSelectCountry}
+              />
+
+              {totalPages > 1 && (
+                <div className="mt-7">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               )}
-              <span className="font-bold text-gray-900 dark:text-white text-lg">
-                {filteredAndSortedCountries.length} countries found
-              </span>
-              {filteredAndSortedCountries.length !== countries.length && (
-                <span className="text-gray-600 dark:text-gray-400">(filtered from {countries.length} total)</span>
+            </div>
+
+            {/* Country detail */}
+
+            <div className="min-w-0">
+              {selectedCountry ? (
+                <CountryDetail
+                  countryCode={selectedCountry}
+                  countries={countries}
+                />
+              ) : (
+                <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-[#0d172b] sm:p-12">
+                  <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+
+                  <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-violet-500/10 blur-3xl" />
+
+                  <div className="relative mx-auto max-w-lg py-8 text-center">
+                    <div className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-600 to-violet-600 shadow-xl shadow-blue-500/20">
+                      <Globe2 className="h-10 w-10 text-white" />
+                    </div>
+
+                    <Badge
+                      variant="secondary"
+                      className="mb-4 rounded-full"
+                    >
+                      Start your journey
+                    </Badge>
+
+                    <h3 className="text-3xl font-black tracking-tight">
+                      Pick a country
+                    </h3>
+
+                    <p className="mx-auto mt-4 max-w-md leading-7 text-slate-600 dark:text-slate-400">
+                      Select a country from the list to discover its capital,
+                      population, languages, currencies, geography, flag, and
+                      more.
+                    </p>
+
+                    <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                        <Map className="mx-auto mb-2 h-5 w-5 text-blue-500" />
+
+                        <span className="text-sm font-medium">
+                          Geography
+                        </span>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                        <Users className="mx-auto mb-2 h-5 w-5 text-violet-500" />
+
+                        <span className="text-sm font-medium">
+                          Population
+                        </span>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                        <BarChart3 className="mx-auto mb-2 h-5 w-5 text-emerald-500" />
+
+                        <span className="text-sm font-medium">
+                          Statistics
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      className="mt-8 rounded-xl"
+                      onClick={() =>
+                        document
+                          .getElementById("countries")
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                          })
+                      }
+                    >
+                      <Compass className="mr-2 h-4 w-4" />
+                      Choose a Country
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
-        )}
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Countries List */}
-          <div className="xl:col-span-1">
-            <CountryList
-              countries={paginatedCountries}
-              isLoading={isLoading}
-              selectedCountry={selectedCountry}
-              onSelectCountry={handleSelectCountry}
-            />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8">
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-              </div>
-            )}
-          </div>
-
-          {/* Country Details */}
-          <div className="xl:col-span-2">
-            {selectedCountry ? (
-              <CountryDetail countryCode={selectedCountry} countries={countries} />
-            ) : (
-              <div className="bg-white/90 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-12 text-center animate-fade-in border border-gray-200/50 dark:border-gray-700/50">
-                <div className="text-gray-700 dark:text-gray-300">
-                  <div className="relative w-24 h-24 mx-auto mb-6">
-                    <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/20 rounded-full opacity-20 animate-pulse-slow"></div>
-                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 rounded-full flex items-center justify-center animate-float">
-                      <Globe className="w-12 h-12 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Select a Country to Explore</h3>
-                  <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-md mx-auto">
-                    Choose any country from the list to discover fascinating details about its culture, geography,
-                    population, and more.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <div className="bg-white/80 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
-                      <Sparkles className="w-4 h-4 inline mr-2" />
-                      Rich Details
-                    </div>
-                    <div className="bg-white/80 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
-                      <TrendingUp className="w-4 h-4 inline mr-2" />
-                      Live Data
-                    </div>
-                    <div className="bg-white/80 dark:bg-gray-700/60 backdrop-blur-sm rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-300 border border-gray-200/50 dark:border-gray-600/50">
-                      <Users className="w-4 h-4 inline mr-2" />
-                      Population Stats
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        </section>
       </main>
     </div>
   )

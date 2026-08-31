@@ -1,19 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-export type Country = {
-  name: { common: string; official: string }
-  cca3: string
-  region: string
-  subregion?: string
-  capital?: string[]
-  population: number
-  area: number
-  languages?: { [k: string]: string }
-  currencies?: { [k: string]: { name: string; symbol: string } }
-  flags?: { svg?: string; png?: string; alt?: string }
-}
+import type { Country } from "@/types/country"
 
 export const useCountries = () => {
   const [countries, setCountries] = useState<Country[]>([])
@@ -21,26 +9,63 @@ export const useCountries = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const fetchCountries = async () => {
       try {
-        const res = await fetch("/api/countries", {
-          cache: "force-cache",
+        setIsLoading(true)
+        setError(null)
+
+        const response = await fetch("/api/countries", {
+          signal: controller.signal,
         })
-        if (!res.ok) {
-          const text = await res.text() // helpful for debugging
-          throw new Error(`HTTP error! Status: ${res.status} — ${text}`)
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(
+            data?.error ||
+              `Failed to load countries. Status: ${response.status}`,
+          )
         }
-        const data = await res.json()
-        setCountries(data)
-      } catch (err: any) {
-        setError(err.message || "Unknown error")
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid response from countries API")
+        }
+
+        setCountries(data as Country[])
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return
+        }
+
+        console.error("Failed to fetch countries:", error)
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load countries",
+        )
       } finally {
-        setIsLoading(false)
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchCountries()
+
+    return () => {
+      controller.abort()
+    }
   }, [])
 
-  return { countries, isLoading, error }
+  return {
+    countries,
+    isLoading,
+    error,
+  }
 }
