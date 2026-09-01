@@ -65,6 +65,7 @@ export function Footer() {
     { icon: Globe, label: "Countries", value: "195+", color: "text-blue-500" },
     { icon: Users, label: "Monthly Users", value: "1K+", color: "text-green-500" },
     { icon: Star, label: "User Rating", value: "4.58/5", color: "text-yellow-500" },
+    { icon: Award, label: "Awards", value: "12", color: "text-purple-500" },
   ]
 
   return (
@@ -178,16 +179,6 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex flex-col md:flex-row items-center gap-4">
               <p className="text-gray-300 text-sm">© {currentYear} Countries Explorer. All rights reserved.</p>
-              <div className="flex items-center gap-4">
-                <Badge variant="secondary" className="bg-white/10 border-white/20 text-white">
-                  <Heart className="w-3 h-3 mr-1 text-red-400" />
-                  Made with Love
-                </Badge>
-                <Badge variant="secondary" className="bg-white/10 border-white/20 text-white">
-                  <TrendingUp className="w-3 h-3 mr-1 text-green-400" />
-                  Always Improving
-                </Badge>
-              </div>
             </div>
 
             <div className="flex items-center gap-6">
